@@ -67,6 +67,7 @@ export default class Base {
 		this.material = new THREE.ShaderMaterial({
 			uniforms: {
 				tMap: { value: this.flowmap.texture },
+				uImage: { value: this.texture },
 			},
 
 			vertexShader: /* glsl */ `
@@ -90,11 +91,15 @@ export default class Base {
 			precision mediump float;
 			varying vec2 vUv;
 			uniform sampler2D tMap;
+			uniform sampler2D uImage;
 			// uniform float uAlpha;
 			void main() {
 				vec4 c = texture2D(tMap, vUv);
+				vec4 image = texture2D(uImage, vUv + c.yz * 0.01);
+
 				float a = 1.; // tDiffuse.a * uAlpha;
-				gl_FragColor = vec4(c.rgb, a);
+
+				gl_FragColor = image;
 			}
 			`,
 		});
