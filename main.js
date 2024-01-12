@@ -6,52 +6,6 @@ import { WebGLRenderTarget } from "three";
 import map from "./utils/map";
 import FBOReader from "./fbo-reader";
 
-const vertexShader = /* glsl */ `
-    uniform float uFalloff;
-	varying vec2 vUv;
-
-    void main() {
-		gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-		vUv = uv;
-    }
-`;
-
-const fragmentShader = /* glsl */ `
-	varying vec2 vUv;
-	uniform float uDissipation;
-	uniform float uAspect;
-	uniform float uTime;
-
-	uniform vec2 uPointer;
-	uniform vec2 uVelocity;
-	uniform vec2 uPosition;
-	uniform float uFalloff;
-
-	uniform sampler2D uTexture;
-
-	float sdCircle( vec2 p, float r ) {
-    	return length(p) - r;
-	}
-
-	float fill(float x, float size, float edge) {
-    return 1.0 - smoothstep(size - edge, size + edge, x);
-	}
-
-	void main() {
-        vec4 color = texture2D(uTexture, vUv) * uDissipation;
-
-        vec2 cursor = vUv - uPosition;
-        cursor.x *= uAspect;
-
-        vec3 stamp = vec3(uVelocity * vec2(1, -1), 1.0 - pow(1.0 - min(1.0, length(uVelocity)), 3.0));
-        float falloff = smoothstep(uFalloff, 0.0, length(cursor)) * 1.0;
-
-        color.rgb = mix(color.rgb, stamp, vec3(falloff));
-
-        gl_FragColor = color;
-    }
-`;
-
 export default class Base {
 	constructor(options) {
 		// Reference to dom element
@@ -103,11 +57,12 @@ export default class Base {
 		 * FBOs
 		 */
 		this.flowmap = new Flowmap(this.renderer, { size: 256, vVelocity: this.v_velocity, vPosition: this.position });
+		2;
 
 		/**
 		 * Ojbects
 		 */
-		this.geometry = new THREE.PlaneGeometry(1, 1);
+		this.geometry = new THREE.PlaneGeometry(1, 1, 100, 100);
 		this.material = new THREE.ShaderMaterial({
 			uniforms: {
 				tMap: { value: this.flowmap.texture },
@@ -118,10 +73,14 @@ export default class Base {
 			precision mediump int;
 			
 			varying vec2 vUv;
+			uniform sampler2D tMap;
 			
 			void main() {
 				vUv = uv;
-				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				vec4 map = texture2D(tMap, vUv);
+				vec3 pos = position;
+				pos.z += map.r * 0.1;
+				vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0 );
 				gl_Position = projectionMatrix * mvPosition;
 			}
 			`,
@@ -138,7 +97,7 @@ export default class Base {
 			}
 			`,
 		});
-		this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshBasicMaterial({ map: this.flowmap.texture }));
+		this.mesh = new THREE.Mesh(this.geometry, this.material);
 
 		/**
 		 * Init
@@ -216,7 +175,6 @@ export default class Base {
 		const deltaTime = this.clock.getDelta();
 		this.controls.update();
 		this.calcVelocity(deltaTime);
-		// this.updateUniforms();
 
 		this.flowmap.render();
 		this.renderer.render(this.scene, this.camera);

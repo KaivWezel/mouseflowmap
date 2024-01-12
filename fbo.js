@@ -82,6 +82,7 @@ export default class Flowmap {
 		this.mesh = new THREE.Mesh(this.geometry, this.flowmapMaterial);
 		this.scene.add(this.mesh);
 	}
+
 	get texture() {
 		return this.fbo.read.texture;
 	}
@@ -129,11 +130,11 @@ const fragmentShader = /* glsl */ `
         cursor.x *= uAspect;
 
 
-        vec3 stamp = vec3(uVelocity.y, uVelocity.x, 1.0 - pow(1.0 - min(1.0, length(uVelocity)), 3.0));
-        float falloff = smoothstep(uFalloff, 0.0, length(cursor)) * uAlpha;
+        // vec3 stamp = vec3(uVelocity.y, uVelocity.x, 1.0 - pow(1.0 - min(1.0, length(uVelocity)), 3.0));
+        float falloff = smoothstep(uFalloff, 0.0, length(cursor)) * 1.0;
 
-        color.rgb = mix(color.rgb, stamp, vec3(falloff)); 
+        // color.rgb = mix(color.rgb, stamp, vec3(falloff)); 
 
-        gl_FragColor = vec4(color.rgb, 1.0);
+        gl_FragColor = vec4(vec3(falloff), 1.0);
     }
 `;
