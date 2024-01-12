@@ -37,6 +37,7 @@ export default class Base {
 		 * Camera
 		 */
 		this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 100);
+		this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000);
 		this.camera.position.z = 3;
 
 		/**
@@ -56,13 +57,13 @@ export default class Base {
 		/**
 		 * FBOs
 		 */
-		this.flowmap = new Flowmap(this.renderer, { size: 256, vVelocity: this.v_velocity, vPosition: this.position });
+		this.flowmap = new Flowmap(this.renderer, { size: 512, vVelocity: this.v_velocity, vPosition: this.position });
 		2;
 
 		/**
 		 * Ojbects
 		 */
-		this.geometry = new THREE.PlaneGeometry(1, 1, 100, 100);
+		this.geometry = new THREE.PlaneGeometry(2, 2, 100, 100);
 		this.material = new THREE.ShaderMaterial({
 			uniforms: {
 				tMap: { value: this.flowmap.texture },
@@ -79,7 +80,7 @@ export default class Base {
 				vUv = uv;
 				vec4 map = texture2D(tMap, vUv);
 				vec3 pos = position;
-				pos.z += map.r * 0.1;
+
 				vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0 );
 				gl_Position = projectionMatrix * mvPosition;
 			}
@@ -118,6 +119,8 @@ export default class Base {
 	}
 
 	onMouseMove(e) {
+		const deltaTime = this.clock.getDelta();
+
 		const { clientX: x, clientY: y } = e;
 		// save last coordinates
 		this.v_PointerLast.x = this.v_Pointer.x;
@@ -131,6 +134,8 @@ export default class Base {
 		const mapY = map(this.v_Pointer.y, 0, this.height, 0, 1);
 
 		this.position.set(mapX, 1.0 - mapY);
+
+		this.calcVelocity(deltaTime);
 	}
 
 	calcVelocity(dt) {
@@ -138,8 +143,10 @@ export default class Base {
 		const dx = this.v_Pointer.x - this.v_PointerLast.x;
 		const dy = this.v_Pointer.y - this.v_PointerLast.y;
 
-		const velX = Math.round(dx / dt);
-		const velY = Math.round(dy / dt);
+		const delta = Math.max(dt, 1 / 60);
+
+		const velX = dx / delta / 1000;
+		const velY = dy / delta / 1000;
 
 		this.v_velocity.set(velX, velY);
 	}
@@ -155,13 +162,6 @@ export default class Base {
 		window.addEventListener("mousemove", this.onMouseMove.bind(this));
 	}
 
-	updateUniforms() {
-		const deltaTime = this.clock.getDelta();
-		// this.material.uniforms.uTime.value += deltaTime;
-		this.flowmap.vVelocity.set(this.v_velocity.x, this.v_velocity.y);
-		this.flowmap.vPosition.set(this.position.x, this.position.y);
-	}
-
 	onResize() {
 		this.width = this.dom.offsetWidth;
 		this.height = this.dom.offsetHeight;
@@ -174,7 +174,7 @@ export default class Base {
 	render() {
 		const deltaTime = this.clock.getDelta();
 		this.controls.update();
-		this.calcVelocity(deltaTime);
+		// this.calcVelocity(deltaTime);
 
 		this.flowmap.render();
 		this.renderer.render(this.scene, this.camera);
