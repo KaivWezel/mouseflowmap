@@ -2,13 +2,17 @@ import * as THREE from "three";
 import { WebGLRenderTarget } from "three";
 import { FloatType, RGBAFormat, NearestFilter } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { Pane } from "tweakpane";
 export default class Flowmap {
 	constructor(renderer, { size = 1, vVelocity, vPosition, uniform = { value: null } } = {}) {
+		this.params = {
+			alpha: 1.0,
+			dissipation: 0.98,
+			falloff: 0.15,
+			size: 1,
+		};
 		this.renderer = renderer;
 		this.size = size;
-		this.alpha = 1.0;
-		this.dissipation = 1.0;
-		this.falloff = 0.15;
 		this.aspect = window.innerWidth / window.innerHeight;
 
 		this.uniform = uniform;
@@ -66,9 +70,9 @@ export default class Flowmap {
 			uniforms: {
 				tMap: { value: this.uniform },
 
-				uFalloff: { value: this.falloff },
-				uDissipation: { value: this.dissipation },
-				uAlpha: { value: this.alpha },
+				uFalloff: { value: this.params.falloff },
+				uDissipation: { value: this.params.dissipation },
+				uAlpha: { value: this.params.alpha },
 
 				uAspect: { value: this.aspect },
 				uVelocity: { value: this.vVelocity },
@@ -79,6 +83,8 @@ export default class Flowmap {
 		this.flowmapMaterial.needsUpdate = true;
 		this.mesh = new THREE.Mesh(this.geometry, this.flowmapMaterial);
 		this.scene.add(this.mesh);
+
+		this.initPane();
 	}
 
 	get texture() {
@@ -91,6 +97,17 @@ export default class Flowmap {
 		this.renderer.setRenderTarget(null);
 		this.fbo.swap();
 		this.flowmapMaterial.uniforms.tMap.value = this.uniform;
+	}
+
+	initPane() {
+		const pane = new Pane();
+		pane.addBinding(this.params, "dissipation", { min: 0, max: 1 });
+		pane.addBinding(this.params, "falloff", { min: 0, max: 1 });
+		pane.on("change", () => {
+			this.flowmapMaterial.uniforms.uAlpha.value = this.params.alpha;
+			this.flowmapMaterial.uniforms.uDissipation.value = this.params.dissipation;
+			this.flowmapMaterial.uniforms.uFalloff.value = this.params.falloff;
+		});
 	}
 }
 

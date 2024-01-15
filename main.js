@@ -5,6 +5,7 @@ import lerp from "./utils/lerp";
 import { WebGLRenderTarget } from "three";
 import map from "./utils/map";
 import FBOReader from "./fbo-reader";
+import Particles from "./particles";
 
 export default class Base {
 	constructor(options) {
@@ -108,16 +109,20 @@ export default class Base {
 		});
 		this.mesh = new THREE.Mesh(this.geometry, this.material);
 
+		this.particles = new Particles(this.renderer, this.scene, this.flowmap.texture);
+
 		/**
 		 * Init
 		 */
-		this.addObjects();
+		this.addReader();
 		this.addControls();
 		this.setupMouseListener();
 		this.render();
 	}
-	addObjects() {
+	addReader() {
 		this.scene.add(this.mesh);
+		this.mesh.scale.set(0.2, 0.2, 0.2);
+		this.mesh.position.set(-0.8, 0.8, 0.0);
 	}
 
 	addControls() {
@@ -153,8 +158,8 @@ export default class Base {
 
 		const delta = Math.max(dt, 1 / 120);
 
-		const velX = dx / delta / 1000;
-		const velY = dy / delta / 1000;
+		const velX = dx / window.devicePixelRatio / delta / 1000;
+		const velY = dy / window.devicePixelRatio / delta / 1000;
 
 		this.v_velocity.set(velX, velY);
 	}
@@ -180,12 +185,17 @@ export default class Base {
 	}
 
 	render() {
+		this.renderer.autoClear = false;
+
 		const deltaTime = this.clock.getDelta();
 		this.controls.update();
-		// this.calcVelocity(deltaTime);
+		this.calcVelocity(deltaTime);
 
 		this.flowmap.render();
 		this.renderer.render(this.scene, this.camera);
+
+		this.renderer.clearDepth();
+		this.particles.render();
 
 		window.requestAnimationFrame(this.render.bind(this));
 	}
@@ -193,5 +203,3 @@ export default class Base {
 
 const canvas = document.querySelector(".webgl");
 const webGL = new Base({ dom: canvas });
-
-const data = document.querySelector(".data");

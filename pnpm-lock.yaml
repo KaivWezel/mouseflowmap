@@ -8,6 +8,9 @@ dependencies:
   three:
     specifier: ^0.158.0
     version: 0.158.0
+  tweakpane:
+    specifier: ^4.0.3
+    version: 4.0.3
   vite-plugin-glsl:
     specifier: ^1.1.2
     version: 1.1.2(vite@5.0.0)
@@ -383,6 +386,10 @@ packages:
 
   /three@0.158.0:
     resolution: {integrity: sha512-TALj4EOpdDPF1henk2Q+s17K61uEAAWQ7TJB68nr7FKxqwyDr3msOt5IWdbGm4TaWKjrtWS8DJJWe9JnvsWOhQ==}
+    dev: false
+
+  /tweakpane@4.0.3:
+    resolution: {integrity: sha512-BlcWOAe8oe4c+k9pmLBARGdWB6MVZMszayekkixQXTgkxTaYoTUpHpwVEp+3HkoamZkomodpbBf0CkguIHTgLg==}
     dev: false
 
   /vite-plugin-glsl@1.1.2(vite@5.0.0):
