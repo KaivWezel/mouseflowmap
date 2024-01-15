@@ -16,7 +16,7 @@ export default class Particles {
 		this.textures = this.images.map((image) => {
 			this.loader.load(image);
 		});
-		this.texture = this.loader.load("./public/sand.jpg");
+		this.texture = this.loader.load("./public/fluid.jpg");
 
 		this.geometry = new THREE.PlaneGeometry(4, 3, this.particles, this.particles);
 		this.material = new THREE.ShaderMaterial({
