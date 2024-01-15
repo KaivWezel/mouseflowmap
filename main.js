@@ -36,7 +36,7 @@ export default class Base {
 		/**
 		 * Camera
 		 */
-		this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 100);
+		// this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 100);
 		this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000);
 		this.camera.position.z = 3;
 
@@ -57,13 +57,13 @@ export default class Base {
 		/**
 		 * FBOs
 		 */
-		this.flowmap = new Flowmap(this.renderer, { size: 512, vVelocity: this.v_velocity, vPosition: this.position });
+		this.flowmap = new Flowmap(this.renderer, { size: 1024, vVelocity: this.v_velocity, vPosition: this.position });
 		2;
 
 		/**
 		 * Ojbects
 		 */
-		this.geometry = new THREE.PlaneGeometry(2, 2, 100, 100);
+		this.geometry = new THREE.PlaneGeometry(2, 2, 512, 512);
 		this.material = new THREE.ShaderMaterial({
 			uniforms: {
 				tMap: { value: this.flowmap.texture },
@@ -81,7 +81,7 @@ export default class Base {
 				vUv = uv;
 				vec4 map = texture2D(tMap, vUv);
 				vec3 pos = position;
-
+				pos.z = pos.z + map.z * 0.1;
 				vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0 );
 				gl_Position = projectionMatrix * mvPosition;
 			}
@@ -95,11 +95,14 @@ export default class Base {
 			// uniform float uAlpha;
 			void main() {
 				vec4 c = texture2D(tMap, vUv);
-				vec4 image = texture2D(uImage, vUv + c.yz * 0.01);
+				vec4 image = texture2D(uImage, vUv + vec2(-c.x, c.y) * 0.01);
+
 
 				float a = 1.; // tDiffuse.a * uAlpha;
 
-				gl_FragColor = image;
+				vec3 color = image.rgb;
+
+				gl_FragColor = vec4(c.rgb, a);
 			}
 			`,
 		});
@@ -148,7 +151,7 @@ export default class Base {
 		const dx = this.v_Pointer.x - this.v_PointerLast.x;
 		const dy = this.v_Pointer.y - this.v_PointerLast.y;
 
-		const delta = Math.max(dt, 1 / 60);
+		const delta = Math.max(dt, 1 / 120);
 
 		const velX = dx / delta / 1000;
 		const velY = dy / delta / 1000;

@@ -7,7 +7,7 @@ export default class Flowmap {
 		this.renderer = renderer;
 		this.size = size;
 		this.alpha = 1.0;
-		this.dissipation = 0.98;
+		this.dissipation = 1.0;
 		this.falloff = 0.15;
 		this.aspect = window.innerWidth / window.innerHeight;
 
