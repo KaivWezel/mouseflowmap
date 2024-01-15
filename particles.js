@@ -1,5 +1,7 @@
 import { Pane } from "tweakpane";
 import * as THREE from "three";
+import Image from "./public/fluid.jpg";
+
 export default class Particles {
 	constructor(renderer, scene, flowmap) {
 		this.renderer = renderer;
@@ -11,12 +13,7 @@ export default class Particles {
 		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 		this.loader = new THREE.TextureLoader();
-
-		this.images = ["./public/fluid.jpg", "./public/sand.jpg"];
-		this.textures = this.images.map((image) => {
-			this.loader.load(image);
-		});
-		this.texture = this.loader.load("./public/fluid.jpg");
+		this.texture = this.loader.load(Image);
 
 		this.geometry = new THREE.PlaneGeometry(4, 3, this.particles, this.particles);
 		this.material = new THREE.ShaderMaterial({

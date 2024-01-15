@@ -115,7 +115,7 @@ export default class Base {
 		 * Init
 		 */
 		this.addReader();
-		this.addControls();
+		// this.addControls();
 		this.setupMouseListener();
 		this.render();
 	}
@@ -188,7 +188,7 @@ export default class Base {
 		this.renderer.autoClear = false;
 
 		const deltaTime = this.clock.getDelta();
-		this.controls.update();
+		if (this.controls) this.controls.update();
 		this.calcVelocity(deltaTime);
 
 		this.flowmap.render();
