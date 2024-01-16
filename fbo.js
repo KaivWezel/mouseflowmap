@@ -8,7 +8,7 @@ export default class Flowmap {
 		this.params = {
 			alpha: 0.9,
 			dissipation: 0.98,
-			falloff: 0.15,
+			falloff: 0.3,
 			size: 1,
 		};
 		this.renderer = renderer;
@@ -26,7 +26,7 @@ export default class Flowmap {
 			type: THREE.FloatType,
 			format: THREE.RGBAFormat,
 			minFilter: THREE.LinearFilter,
-			magFilter: THREE.NearestFilter,
+			magFilter: THREE.LinearFilter,
 			depthBuffer: false,
 			stencilBuffer: false,
 		};
@@ -137,7 +137,7 @@ const fragmentShader = /* glsl */ `
 
 
         vec3 stamp = vec3(uVelocity * vec2(1.0), 1.0 - pow(1.0 - min(1.0, length(uVelocity)), 3.0));
-        float falloff = smoothstep(uFalloff, 0.0, length(cursor)) * uAlpha;
+        float falloff = smoothstep(uFalloff * 0.5, 0.0, length(cursor)) * uAlpha;
 
 		color.rgb = mix(color.rgb, stamp, vec3(falloff));
 

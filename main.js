@@ -96,12 +96,13 @@ export default class Base {
 			// uniform float uAlpha;
 			void main() {
 				vec4 c = texture2D(tMap, vUv);
-				vec4 image = texture2D(uImage, vUv + vec2(-c.x, c.y) * 0.01);
+				// vec4 image = texture2D(uImage, vUv + vec2(-c.x, c.y) * 0.01);
+
 
 
 				float a = 1.; // tDiffuse.a * uAlpha;
 
-				vec3 color = image.rgb;
+				// vec3 color = image.rgb;
 
 				gl_FragColor = vec4(c.rgb, a);
 			}
@@ -163,7 +164,7 @@ export default class Base {
 		const velX = dx / delta;
 		const velY = dy / delta;
 
-		this.v_velocity.set(velX, velY);
+		this.v_velocity.set(lerp(this.v_velocity.x, velX, 0.15), lerp(this.v_velocity.y, velY, 0.15));
 	}
 
 	/**
@@ -188,7 +189,6 @@ export default class Base {
 
 	render() {
 		this.renderer.autoClear = false;
-
 		const deltaTime = this.clock.getDelta();
 		if (this.controls) this.controls.update();
 
