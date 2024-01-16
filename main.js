@@ -115,7 +115,7 @@ export default class Base {
 		 * Init
 		 */
 		this.addReader();
-		this.addControls();
+		// this.addControls();
 		this.setupMouseListener();
 		this.render();
 	}
@@ -133,8 +133,10 @@ export default class Base {
 
 	onMouseMove(e) {
 		const deltaTime = this.clock.getDelta();
+		console.log(deltaTime);
 
 		const { clientX: x, clientY: y } = e;
+
 		// save last coordinates
 		this.v_PointerLast.x = this.v_Pointer.x;
 		this.v_PointerLast.y = this.v_Pointer.y;
@@ -156,10 +158,10 @@ export default class Base {
 		const dx = this.v_Pointer.x - this.v_PointerLast.x;
 		const dy = this.v_Pointer.y - this.v_PointerLast.y;
 
-		const delta = Math.max(dt, 1 / 120);
+		const delta = Math.max(dt, 16);
 
-		const velX = dx / window.devicePixelRatio / delta / 1000;
-		const velY = dy / window.devicePixelRatio / delta / 1000;
+		const velX = dx / delta;
+		const velY = dy / delta;
 
 		this.v_velocity.set(velX, velY);
 	}
@@ -188,14 +190,13 @@ export default class Base {
 		this.renderer.autoClear = false;
 
 		const deltaTime = this.clock.getDelta();
-		this.controls.update();
-		this.calcVelocity(deltaTime);
+		if (this.controls) this.controls.update();
 
 		this.flowmap.render();
 		this.renderer.render(this.scene, this.camera);
 
-		this.renderer.clearDepth();
-		this.particles.render();
+		// this.renderer.clearDepth();
+		// this.particles.render();
 
 		window.requestAnimationFrame(this.render.bind(this));
 	}

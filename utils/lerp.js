@@ -1,3 +1,3 @@
-export default function lerp(value, min, max) {
+export default function lerp(min, max, value) {
 	return min + value * (max - min);
 }

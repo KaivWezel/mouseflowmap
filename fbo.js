@@ -6,7 +6,7 @@ import { Pane } from "tweakpane";
 export default class Flowmap {
 	constructor(renderer, { size = 1, vVelocity, vPosition, uniform = { value: null } } = {}) {
 		this.params = {
-			alpha: 1.0,
+			alpha: 0.9,
 			dissipation: 0.98,
 			falloff: 0.15,
 			size: 1,
@@ -20,23 +20,15 @@ export default class Flowmap {
 		this.vVelocity = vVelocity || new THREE.Vector2();
 		this.vPosition = vPosition || new THREE.Vector2();
 
-		this.renderTarget = new WebGLRenderTarget(this.size, this.size, {
-			type: FloatType,
-			format: RGBAFormat,
-			minFilter: NearestFilter,
-			magFilter: NearestFilter,
-			stencilBuffer: false,
-		});
-
 		this.options = {
 			width: this.size,
 			height: this.size,
 			type: THREE.FloatType,
 			format: THREE.RGBAFormat,
-			minFilter: THREE.NearestFilter,
+			minFilter: THREE.LinearFilter,
 			magFilter: THREE.NearestFilter,
-			depth: false,
-			stencil: false,
+			depthBuffer: false,
+			stencilBuffer: false,
 		};
 
 		this.fbo = {
@@ -144,8 +136,8 @@ const fragmentShader = /* glsl */ `
         cursor.x *= uAspect;
 
 
-        vec3 stamp = vec3(uVelocity , 1.0 - pow(1.0 - min(1.0, length(uVelocity)), 3.0));
-        float falloff = smoothstep(uFalloff, 0.0, length(cursor));
+        vec3 stamp = vec3(uVelocity * vec2(1.0), 1.0 - pow(1.0 - min(1.0, length(uVelocity)), 3.0));
+        float falloff = smoothstep(uFalloff, 0.0, length(cursor)) * uAlpha;
 
 		color.rgb = mix(color.rgb, stamp, vec3(falloff));
 
