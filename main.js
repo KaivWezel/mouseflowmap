@@ -156,7 +156,7 @@ export default class Base {
 		const dx = this.v_Pointer.x - this.v_PointerLast.x;
 		const dy = this.v_Pointer.y - this.v_PointerLast.y;
 
-		const delta = Math.max(dt, 1 / 120);
+		const delta = Math.max(dt, 1 / 60);
 
 		const velX = dx / window.devicePixelRatio / delta / 1000;
 		const velY = dy / window.devicePixelRatio / delta / 1000;
